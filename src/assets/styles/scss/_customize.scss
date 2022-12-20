@@ -1,0 +1,102 @@
+.container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 10px !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    max-width: 100%;
+}
+
+.truncate-line__2 {
+    width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.truncate-line__3 {
+    width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+.truncate-line__4 {
+    width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+}
+
+.shadow-custom {
+    --tw-shadow: 13px 16px 10px 1px rgba(5, 93, 188, 0.2);
+    box-shadow: 13px 16px 10px 1px rgba(5, 93, 188, 0.2);
+}
+
+.scrollbar_style {
+    /* scrollbar */
+    /* width */
+    &::-webkit-scrollbar {
+        width: 15px;
+        background: transparent;
+        border-radius: 15px;
+    }
+
+    /* Track */
+    &::-webkit-scrollbar-track {
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        box-shadow: none;
+        border-radius: 10px;
+        border: solid 10px transparent;
+    }
+
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+        background: rgba(110, 110, 110, 0.7);
+        height: 132px;
+        border: 4px solid transparent;
+        border-radius: 10px;
+        background-clip: padding-box;
+    }
+
+    /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgb(64, 64, 64);
+        border: 4px solid transparent;
+        border-radius: 10px;
+        background-clip: padding-box;
+    }
+}
+
+.VueCarousel-dot {
+    &:focus {
+        outline: none !important;
+    }
+}
+@media screen and (min-width: 768px) {
+    .container {
+        padding: 0 30px !important;
+        max-width: 1024px;
+    }
+}
+@media screen and (min-width: 1024px) {
+    .container {
+        padding: 0 60px !important;
+        max-width: 1200px;
+    }
+}
+@media screen and (min-width: 1200px) {
+    .container {
+        padding: 0 80px !important;
+        max-width: 1440px;
+    }
+}
+@media screen and (min-width: 1440px) {
+    .container {
+        padding: 0 140px !important;
+        max-width: 1600px;
+    }
+}

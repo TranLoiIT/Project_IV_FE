@@ -14,63 +14,50 @@
                         >
                             <div class="rounded-t mb-0 px-6 py-6">
                                 <div class="text-center mb-3">
-                                    <h6 class="text-gray-600 text-lg font-bold">
-                                        Login Admin
-                                    </h6>
+                                    <div class="text-gray-600 text-xl font-bold">Đăng nhập</div>
                                 </div>
                                 <hr class="mt-6 border-b-1 border-gray-400" />
                             </div>
                             <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
-                                <!-- <div class="text-gray-500 text-center mb-3 font-bold">
-                                    <small>Or sign in with credentials</small>
-                                </div> -->
                                 <div>
                                     <div class="relative w-full mb-3">
                                         <label
-                                            class="block uppercase text-gray-700 text-base font-bold mb-2"
-                                            for="grid-password"
-                                        >Email</label>
-                                        <BaseInputVue v-model="username" :placeholder="'email'" />
+                                            class="text-gray-700 text-sm font-bold mb-2"
+                                        >Tài khoản</label>
+                                        <BaseInputVue v-model="formData.username" />
                                     </div>
                                     <div class="relative w-full mb-3">
                                         <label
-                                            class="block uppercase text-gray-700 text-base font-bold mb-2"
-                                            for="grid-password"
-                                        >Password</label>
-                                        <BaseInputVue v-model="password" :type="'password'" :placeholder="'password'" />
+                                            class="text-gray-700 text-sm font-bold mb-2"
+                                        >Mật Khẩu</label>
+                                        <BaseInputVue v-model="formData.password" :type="'password'" />
                                     </div>
-                                    <div>
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input
-                                                id="customCheckLogin"
-                                                type="checkbox"
-                                                class="form-checkbox border-0 rounded text-gray-800 ml-1 w-5 h-5"
-                                                style="transition: all 0.15s ease 0s;"
-                                            />
-                                            <span class="ml-2 text-sm font-semibold text-gray-700">Remember me</span>
-                                        </label>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <div
+                                            class="ml-2 text-sm font-semibold text-gray-700 cursor-pointer underline hover:text-red-600"
+                                        >
+                                            Quên mật khẩu?
+                                        </div>
+                                        <div
+                                            class="ml-2 text-sm font-semibold text-gray-700 cursor-pointer underline hover:text-red-600"
+                                            @click="$router.push('/user/create-customer')"
+                                        >
+                                            Đăng ký tài khoản.
+                                        </div>
                                     </div>
                                     <div class="text-center mt-6">
                                         <button
                                             class="bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full"
+                                            :class="(checkEmty) ? 'opacity-30 cursor-not-allowed' : ''"
                                             type="button"
                                             style="transition: all 0.15s ease 0s;"
-                                            @click="login"
+                                            :disabled="checkEmty"
+                                            @click="hanlderLogin"
                                         >
-                                            Sign In
+                                            Đăng nhập
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap mt-6">
-                            <div class="w-1/2">
-                                <a href="#pablo" class="text-gray-300">
-                                    <small>Forgot password?</small>
-                                </a>
-                            </div>
-                            <div class="w-1/2 text-right">
-                                <a href="#pablo" class="text-gray-300"><small>Create new account</small></a>
                             </div>
                         </div>
                     </div>
@@ -81,23 +68,37 @@
 </template>
 <script>
 import BaseInputVue from '~/components/BaseInput.vue';
-import { loginUser } from '~/api/login';
+import { loginUser } from '~/api/user';
 
 export default {
-    name: "login-page",
     components: {
         BaseInputVue,
     },
     data() {
         return {
-            username: '',
-            password: '',
-            device_name: null,
+            formData: {
+                username: '',
+                password: '',
+                device_name: null,
+            },
             loading: false,
+            checkEmty: true,
         }
     },
     mounted() {
-        this.device_name = this.getUA();
+        this.formData.device_name = this.getUA();
+    },
+    watch: {
+        formData: {
+            handler() {
+                if (this.formData.username !== '' && this.formData.password !== '') {
+                    this.checkEmty = false;
+                } else {
+                    this.checkEmty = true;
+                }
+            },
+            deep: true
+        }
     },
     methods: {
         getUA() {
@@ -120,17 +121,18 @@ export default {
             Object.keys(ua).map(v => navigator.userAgent.match(ua[v]) && (device = v));
             return device;
         },
-        async login() {
+        async hanlderLogin() {
             try {
-                const {data} = await loginUser({
-                    username: this.username,
-                    password: this.password,
-                    device_name: this.device_name,
-                });
+                const {data} = await loginUser(this.formData);
                 if (data) {
-                    const token = data.token;
-                    this.$cookies.set('TOKEN_USER', token);
+                    const dataUser = {
+                        role: 'user',
+                        token: data.token,
+                    }
+                    this.$cookies.set('TOKEN', dataUser);
+                    this.$store.commit('auth/ADD_TOKEN', dataUser);
                     this.notification('success', 'Đăng nhập thành công!');
+                    this.$router.push('/');
                 }
             } catch (error) {
                 this.notification('error', error.message);

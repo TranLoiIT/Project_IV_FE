@@ -53,9 +53,7 @@
 </template>
 <script>
 import { mapState } from 'vuex';
-import InputFormVue from '~/components/admin/InputForm.vue';
 import lableFormVue from '~/components/admin/LableForm.vue';
-import BaseInputVue from '~/components/BaseInput.vue';
 import BaseInputPasswordVue from '~/components/admin/BaseInputPassword.vue';
 import LoadingVue from '~/components/Loading.vue';
 // import { changePassword } from '~/api/user';
@@ -63,11 +61,9 @@ import LoadingVue from '~/components/Loading.vue';
 export default {
      layout: 'admin',
      components: {
-          InputFormVue,
           lableFormVue,
-          BaseInputVue,
-          LoadingVue,
           BaseInputPasswordVue,
+          LoadingVue,
      },
      middleware: 'authenticated',
      data() {
@@ -83,7 +79,7 @@ export default {
      },
      computed: {
           ...mapState('auth', {
-               user: (state) => state.user,
+               // user: (state) => state.user,
           }),
      },
      watch:{

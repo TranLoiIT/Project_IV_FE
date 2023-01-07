@@ -1,131 +1,181 @@
 <template>
-     <div class="lg:mt-24 mt-20">
-          <div class="mt-5 py-12">
-               <div class="container mb-10">
-                    <div class="flex justify-center">
-                         <div class="w-4/5 flex items-center">
-                              <div class="flex items-center tablet-600:w-1/2 desktop-xs:w-3/4 w-1/4">
-                                   <div class="border-b-4 border-black w-full" />
-                              </div>
-                              <div
-                                   class="lg:text-2xl tablet-600:text-xl text-lg font-bold text-black w-full text-center uppercase"
-                              >
-                                   Danh sách bài viết</div>
-                              <div class="flex items-center tablet-600:w-1/2 desktop-xs:w-3/4 w-1/4">
-                                   <div class="border-b-4 border-black w-full" />
-                              </div>
-                         </div>
-                    </div>
-                    <template v-if="listItem.length > 0">
-                         <div class="grid desktop-xs:grid-cols-3 grid-cols-2 lg:gap-8 gap-2 lg:mt-20 mt-10">
-                              <div
-                                   v-for="(item, index) in listItem"
-                                   :key="index"
-                                   class="col-span-1 bg-white rounded-15 shadow-xl height--card"
-                              >
-                                   <img
-                                        class="w-full rounded-t-15 object-cover height--image"
-                                        :src="`${URL}/uploads/${item.img_url}`"
-                                        :alt="item.img_url"
-                                   >
-                                   <div class="lg:px-4 px-2 py-3 text-center">
-                                        <div
-                                             class="lg:text-2xl tablet-600:text-xl text-sm font-bold text-black truncate w-full"
-                                        >{{ item.name }}</div>
-                                        <div class="flex justify-center items-center">
-                                             <div class="border-b border-black py-2 w-2/5" />
-                                        </div>
-                                        <div class="mt-3 lg:text-lg tablet-600:text-sm text-xs text-gray-500 truncate-line__2 lg:h-14 tablet-600:h-10 h-8">
-                                             {{ item.content }}
-                                        </div>
-                                        <div class="mt-3 tablet-600:flex justify-end items-center">
-                                             <div class="mt-3 tablet-600:mt-0">
-                                                  <BtnShowMoreVue @on-Click="hanlderClick(item.id)" />
-                                             </div>
-                                        </div>
-                                   </div>
-                              </div>
-                         </div>
-                         <div v-if="pageItem.totalPage > 1" class="mt-12">
-                              <vs-pagination
-                                   :total-pages="pageItem.totalPage"
-                                   :current-page="pageItem.currentPage"
-                                   @change="changePage"
-                              />
-                         </div>
-                    </template>
-                    <template v-else>
-                         <div class="mt-12 text-center">
-                              ( Bài viết trống )
-                         </div>
-                    </template>
+     <div class="mb-12">
+          <div class="px-20 py-5 mt-2">
+               <h1 class="text-2xl font-bold uppercase">Danh bài viết</h1>
+               <div class="flex justify-end items-center w-full">
+                    <BaseBtn
+                         :placeholder="'Thêm mới'"
+                         @on-click="$router.push('news/create')"
+                    />
                </div>
           </div>
-          <LoadingVue :loading="loading" />
+          <div class="flex justify-center items-center mt-6">
+               <div class="w-4/5">
+                    <BaseTableVue :data-table="dataTable" class="shadow-2xl">
+                         <template v-slot:columns>
+                              <th style="border-top-left-radius: 15px;">STT</th>
+                              <th>Tên bài viết</th>
+                              <th>Tác giả</th>
+                              <th>Ngày tạo</th>
+                              <th style="border-top-right-radius: 15px;">Chức năng</th>
+                         </template>
+                         <template slot-scope="{row}">
+                              <TdTable :name-table="row.name" :row-width="150" />
+                              <TdTable :name-table="row.author" :row-width="150" />
+                              <TdTable :name-table="formatDay(row.createdAt)" :row-width="150" />
+                              <TdTable :id-table="row.id" :row-width="150" :actions="true" @on-click="handlerClick" />
+                         </template>
+                    </BaseTableVue>
+               </div>
+          </div>
+          <div v-if="pagination.totalPage > 1" class="flex justify-center items-center">
+               <div class="w-4/5 mt-12">
+                    <vs-pagination
+                         :total-pages="pagination.totalPage"
+                         :current-page="pagination.currentPage"
+                         @change="changePage"
+                    />
+               </div>
+          </div>
+          <Loading :loading="loading" />
+          <BaseComfirm
+               :showMemo="showMemo"
+               :title="'Bạn có muốn xóa bài viết này không ?'"
+               @comfirm="removePost"
+               @cancel="showMemo = false"
+          />
      </div>
 </template>
 <script>
-import LoadingVue from '~/components/Loading.vue';
-import BtnShowMoreVue from '~/components/home/BtnShowMore.vue';
-// import { getPost } from '~/api/home';
-
+import BaseTableVue from '~/components/BaseTable.vue';
+import TdTableVue from '~/components/TdTable.vue';
+import BaseBtn from '@/components/BaseBtn.vue';
+import Loading from '@/components/Loading.vue';
+import BaseComfirm from '@/components/admin/BaseComfirm.vue';
+// import { getPost, deletePost } from '@/api/new';
 
 export default {
+     layout: 'admin',
      components: {
-          LoadingVue,
-          BtnShowMoreVue,
+          BaseTableVue,
+          TdTableVue,
+          BaseBtn,
+          Loading,
+          BaseComfirm,
      },
-     layout: 'home',
-     mounted() {
-          this.getDataNews();
-     },
+     middleware: 'authenticated',
      data() {
           return {
-               pageItem: {
-                    currentPage: null,
-                    totalCount: null,
-                    totalPage: null,
-                    page: 1,
-                    pageSize: 9,
-                    order: 'DESC',
+               pagination: {
+                    currentPage: 1,
+                    pageSize: 10,
+                    totalPage: 0,
+                    totalCount: 0
                },
-               listItem: [],
+               dataTable : [],
                loading: false,
-               activeCategories: '1',
-               URL: process.env.BROWSER_API_URL,
+               showMemo: false,
+               idPost: null,
           }
      },
+     mounted() {
+          this.getData();
+     },
      methods: {
-          async getDataNews() {
+          async getData() {
                try {
                     this.loading = true;
-                    // const {data} = await getPost(this.pageItem);
+                    const param = {
+                         page: this.pagination.currentPage,
+                         pageSize: this.pagination.pageSize,
+                         order: 'DESC',
+                         status: true,
+                    }
+                    // const { data } = await getPost(param);
                     if (data) {
-                         this.listItem = data.data;
-                         const pagination = data.pagination;
-                         this.pageItem = {
-                              currentPage: pagination.currentPage,
-                              totalCount: pagination.totalCount,
-                              totalPage: pagination.totalPage,
-                              page: 1,
-                              pageSize: 9,
-                              order: 'DESC',
-                         };
+                         this.dataTable = data.data;
+                         this.pagination = data.pagination
                     }
                } catch (error) {
-                    console.log(error);
+                    if (error.response.data.statusCode === 401) {
+                         this.notification('error', error.response.data.message);
+                         this.$store.commit('auth/set', null);
+                         this.$cookies.set('token', null);
+                         this.$router.push('/login');
+                    } else {
+                         this.notification('error', error.message);
+                    }
                } finally {
                     this.loading = false;
                }
           },
-          hanlderClick(id) {
-               if (id) {
-                    this.$router.push(`/news/${id}`);
+          changePage(event) {
+               this.pagination.currentPage = event;
+               this.getData();
+          },
+          handlerClick(event) {
+               if (event.type === 'delete') {
+                    this.showMemo = true;
+                    this.idPost = event.value;
+               } else if (event.type === 'edit') {
+                    this.$router.push(`/admin/news/${event.value}`)
                }
+          },
+          async removePost() {
+               if (this.idPost) {
+                    try {
+                         this.loading = true;
+                         const {data} = await deletePost(this.idPost);
+                         this.dataTable = this.dataTable.filter((item) => item.id !== data.id);
+                         this.$toast.success("Xóa thành công! ", {
+                              position: "top-right",
+                              timeout: 3000,
+                              closeOnClick: true,
+                              pauseOnFocusLoss: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              draggablePercent: 0.6,
+                              showCloseButtonOnHover: false,
+                              hideProgressBar: true,
+                              closeButton: "button",
+                              icon: true,
+                              rtl: false
+                         });
+                    } catch (error) {
+                         console.log('error: ', error);
+                         if (error.response.data.statusCode === 401) {
+                              this.notification('error', error.response.data.message);
+                              this.$store.commit('auth/set', null);
+                              this.$cookies.set('token', null);
+                              this.$router.push('/login');
+                         } else {
+                              this.notification('error', error.message);
+                         }
+                    } finally {
+                         this.showMemo = false;
+                         this.loading = false;
+                         this.idPost = null;
+                    }
+               }
+          },
+          formatDay(day) {
+               return this.$dayjs(day).format('DD-MM-YYYY');
           }
      },
 }
 </script>
-<style lang="scss" scoped>
-     
+<style lang="scss">
+.vs-pagination {
+     li {
+          a {
+               font-size: 18px !important;
+               font-weight: 600 !important;
+          }
+     }
+     &--active {
+          a {
+               background: rgba(190, 190, 190, 0.5) !important;
+          }
+     }
+}
 </style>

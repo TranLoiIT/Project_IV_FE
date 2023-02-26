@@ -129,7 +129,7 @@ export default {
                         role: 'user',
                         token: data.token,
                     }
-                    this.$cookies.set('TOKEN', dataUser);
+                    this.$cookies.set('TOKEN', data.token);
                     this.$store.commit('auth/ADD_TOKEN', dataUser);
                     this.notification('success', 'Đăng nhập thành công!');
                     this.$router.push('/');

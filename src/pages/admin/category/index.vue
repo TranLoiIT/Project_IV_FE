@@ -61,7 +61,7 @@ export default {
           Loading,
           BaseComfirm,
      },
-     middleware: 'authenticated',
+     // middleware: 'authenticated',
      data() {
           return {
                pagination: {

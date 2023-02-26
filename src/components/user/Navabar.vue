@@ -44,7 +44,7 @@
                         <div
                             class="lg:text-white lg:hover:text-gray-300 text-gray-800 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold cursor-pointer"
                         >
-                            <template v-if="!user.id">
+                            <template v-if="!user?.id">
                                 <div
                                     class="flex item-center"
                                     @click="$router.push('/user/login')"
@@ -67,8 +67,22 @@
                                             :style="activeDropdown ? 'transform: rotate(3.142rad);' : 'transform: rotate(0);'"
                                         ></i>
                                     </div>
-                                    <div v-show="activeDropdown" class="absolute py-3 px-6 bg-white rounded-lg text-black w-52">
-                                        <div class="flex items-center hover:text-blue-300">
+                                    <div v-show="activeDropdown" class="absolute py-3 px-6 bg-white rounded-lg text-black w-64 nav_dorpdown">
+                                        <div
+                                            class="flex items-center hover:text-gray-400 cursor-pointer"
+                                            @click="$router.push('/user/update-profile')"
+                                        >
+                                            <i class="flex items-center text-base leading-lg fas fa-user"></i>
+                                            <span class="font-normal ml-2">Thông tin người dùng</span>
+                                        </div>
+                                        <div
+                                            class="flex items-center hover:text-gray-400 cursor-pointer mt-4"
+                                            @click="$router.push('/user/change-password')"
+                                        >
+                                            <i class="flex items-center text-base leading-lg fas fa-key"></i>
+                                            <span class="font-normal ml-2">Đổi mật khẩu</span>
+                                        </div>
+                                        <div class="flex items-center hover:text-gray-400 cursor-pointer mt-4">
                                             <i class="flex items-center text-base leading-lg fas fa-sign-out-alt"></i>
                                             <span class="font-normal ml-2">Đăng xuất</span>
                                         </div>
@@ -90,12 +104,14 @@
             return {
                 showMenu: false,
                 activeDropdown: false,
-                user: {}
             }
         },
         computed: {
             ...mapState('cart', {
                 listCart: (state) => state.cart || [],
+            }),
+            ...mapState('user', {
+                user: (state) => state.user || {},
             }),
         },
         methods: {
@@ -108,4 +124,11 @@
         }
     }
 </script>
+
+<style lang="scss" scoped>
+.nav_dorpdown {
+    top: 42px;
+    right: 0;
+}
+</style>
   

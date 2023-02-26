@@ -284,6 +284,7 @@
 <script>
     import { mapState } from 'vuex';
     import { getProducts } from '~/api/home';
+    import { getInformation } from '~/api/user'
     import NavbarComponent from "~/components/user/Navabar.vue";
     import FooterComponent from "~/components/user/Footer.vue";
     import BaseCardComponentsVue from "~/components/user/BaseCardComponents.vue";
@@ -296,6 +297,16 @@
             FooterComponent,
             BaseCardComponentsVue,
             LoadingVue,
+        },
+        async asyncData({store}) {
+            try {
+                const { data } = await getInformation();
+                if (data) {
+                    store.commit('user/ADD_USER', data);
+                }
+            } catch (error) {
+                console.log(error);
+            }
         },
         data() {
             return {
@@ -332,8 +343,6 @@
                             previous: data.previous,
                         }
                     }
-                    console.log('products: ', this.products);
-                    console.log('page: ', this.page);
                 } catch (error) {
                     console.log('error: ', error);
                 } finally {
@@ -341,20 +350,16 @@
                 }
             },
             addToCart(data) {
-                console.log('this.listCart: ', this.listCart);
                 let cart = [];
                 let newArr = [];
                 const arr = this.listCart.filter((item) => item.id === data.id);
-                console.log('arr: ', arr);
                 if (arr.length > 0) {
                     const filterData = this.listCart.filter((item) => item.id !== data.id);
                     const size = arr[0]?.size || 1;
                     newArr = { ...arr[0], size: size + 1 };
                     cart = [newArr, ...filterData];
-                    console.log('cart-1: ', cart);
                 } else {
                     cart = [ data, ...this.listCart ];
-                    console.log('cart-2: ', cart);
                 }
                 this.$store.commit('cart/ADD_TO_CART', cart);
                 this.$cookies.set('CART_USER', cart);

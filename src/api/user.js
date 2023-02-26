@@ -4,4 +4,5 @@ import axios from "~/utils/axios";
 export const loginUser = (data) => axios.post(`${URL_API}/customer/login`, data);
 
 export const registerUser = (data) => axios.post(`${URL_API}/customer/register`, data);
- 
+
+export const getInformation = () => axios.get(`${URL_API}/customers/me`);

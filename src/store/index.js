@@ -1,4 +1,3 @@
-
 export const actions = {
     // Comment nuxtClientInit if using SSR or comment nuxtServerInit if using CSR
     async nuxtClientInit({ commit }) {

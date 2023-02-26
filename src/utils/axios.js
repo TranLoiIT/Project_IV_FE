@@ -1,7 +1,7 @@
 import axios from 'axios';
 import cookie from 'js-cookie';
 
-const token = cookie.get('token');
+const token = cookie.get('TOKEN');
 
 let options = {
      baseURL: process.env.BROWSER_API_URL,
